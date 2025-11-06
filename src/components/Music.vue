@@ -57,9 +57,6 @@
           />
           <Player
             ref="playerRef"
-            :songServer="playerData.server"
-            :songType="playerData.type"
-            :songId="playerData.id"
             :volume="volumeNum"
           />
         </div>
@@ -90,11 +87,6 @@ const volumeNum = ref(store.musicVolume ? store.musicVolume : 0.7);
 // 播放列表数据
 const musicListShow = ref(false);
 const playerRef = ref(null);
-const playerData = reactive({
-  server: import.meta.env.VITE_SONG_SERVER,
-  type: import.meta.env.VITE_SONG_TYPE,
-  id: import.meta.env.VITE_SONG_ID,
-});
 
 // 开启播放列表
 const openMusicList = () => {

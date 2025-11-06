@@ -22,9 +22,10 @@
 
 <script setup>
 import { MusicOne, PlayWrong } from "@icon-park/vue-next";
-import { getPlayerList } from "@/api";
 import { mainStore } from "@/store";
 import APlayer from "@worstone/vue-aplayer";
+// 引入本地音乐列表
+import localMusicList from "@/assets/localMusic.json";
 
 const store = mainStore();
 
@@ -52,21 +53,6 @@ const props = defineProps({
       return value >= 0 && value <= 1;
     },
   },
-  // 歌曲服务器 ( netease-网易云, tencent-qq音乐 )
-  songServer: {
-    type: String,
-    default: "netease", //'netease' | 'tencent'
-  },
-  // 播放类型 ( song-歌曲, playlist-播放列表, album-专辑, search-搜索, artist-艺术家 )
-  songType: {
-    type: String,
-    default: "playlist",
-  },
-  // id
-  songId: {
-    type: String,
-    default: "7452421335",
-  },
   // 列表是否默认折叠
   listFolded: {
     type: Boolean,
@@ -83,32 +69,38 @@ const listHeight = computed(() => {
   return props.listMaxHeight + "px";
 });
 
+// 加载本地音乐列表
+const loadLocalMusic = () => {
+  try {
+    // 直接使用导入的 JSON 数据
+    playList.value = localMusicList.map(song => ({
+      name: song.name,
+      artist: song.artist,
+      url: song.url,
+      cover: song.cover || "/images/default-cover.jpg",
+      lrc: song.lrc || "[00:00.00]暂无歌词"
+    }));
+    
+    console.log("本地音乐加载完成:", playList.value);
+    store.musicIsOk = true;
+  } catch (err) {
+    console.error("音乐列表加载失败:", err);
+    store.musicIsOk = false;
+    ElMessage({
+      message: "播放器加载失败",
+      grouping: true,
+      icon: h(PlayWrong, {
+        theme: "filled",
+        fill: "#efefef",
+      }),
+    });
+  }
+};
+
 // 初始化播放器
 onMounted(() => {
   nextTick(() => {
-    try {
-      getPlayerList(props.songServer, props.songType, props.songId).then((res) => {
-        console.log(res);
-        // 更改播放器加载状态
-        store.musicIsOk = true;
-        // 生成歌单
-        playList.value = res;
-        console.log("音乐加载完成");
-        console.log(playList.value);
-        console.log(playIndex.value, playList.value.length, props.volume);
-      });
-    } catch (err) {
-      console.error(err);
-      store.musicIsOk = false;
-      ElMessage({
-        message: "播放器加载失败",
-        grouping: true,
-        icon: h(PlayWrong, {
-          theme: "filled",
-          fill: "#efefef",
-        }),
-      });
-    }
+    loadLocalMusic();
   });
 });
 
@@ -178,7 +170,7 @@ const toggleList = () => {
 const loadMusicError = () => {
   let notice = "";
   if (playList.value.length > 1) {
-    notice = "播放歌曲出现错误，播放器将在 2s 后进行下一首";
+    notice = "播放歌曲出现错误,播放器将在 2s 后进行下一首";
   } else {
     notice = "播放歌曲出现错误";
   }

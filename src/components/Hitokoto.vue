@@ -11,7 +11,7 @@
       <div
         class="open-music"
         v-show="openMusicShow && store.musicIsOk"
-        @click="store.musicOpenState = true"
+        @click="openMusicPlayer"
       >
         <music-menu theme="filled" size="18" fill="#efefef" />
         <span>打开音乐播放器</span>
@@ -63,6 +63,12 @@ const getHitokotoData = async () => {
   }
 };
 
+// 打开音乐播放器
+const openMusicPlayer = () => {
+  console.log("点击打开音乐播放器");
+  store.musicOpenState = true;
+};
+
 // 更新一言数据
 const updateHitokoto = () => {
   // 防抖
@@ -93,6 +99,13 @@ onMounted(() => {
     background: #00000026;
     padding: 4px 0;
     border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: background 0.3s;
+    
+    &:hover {
+      background: #00000040;
+    }
+    
     .i-icon {
       width: 18px;
       height: 18px;
@@ -108,6 +121,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    cursor: pointer;
     .text {
       font-size: 1.1rem;
       word-break: break-all;
